@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kracht-Quiz</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f4f1ea;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+.quiz-container {
+  background: #fff;
+  max-width: 680px;
+  width: 100%;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.08);
+  padding: 2.5rem 2.5rem 2rem;
+}
+
+h1 {
+  font-family: 'EB Garamond', serif;
+  font-weight: 400;
+  font-size: 2.4rem;
+  text-align: center;
+  letter-spacing: -.02em;
+  margin-bottom: .25rem;
+  color: #1a1a1a;
+}
+
+.subtitle {
+  text-align: center;
+  color: #888;
+  font-size: .85rem;
+  margin-bottom: 2rem;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
+.progress-bar {
+  height: 4px;
+  background: #e8e5de;
+  border-radius: 2px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 10%;
+  background: #1a1a1a;
+  border-radius: 2px;
+  transition: width .35s ease;
+}
+
+.question-number {
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #999;
+  margin-bottom: .75rem;
+}
+
+.question-text {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #1a1a1a;
+  margin-bottom: 1.75rem;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  margin-bottom: 1.75rem;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .9rem 1.1rem;
+  border: 1.5px solid #e0ddd6;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all .15s ease;
+  font-size: .95rem;
+  color: #333;
+  line-height: 1.4;
+}
+
+.option:hover { border-color: #bbb; background: #faf9f6; }
+
+.option input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+  transition: all .15s ease;
+  cursor: pointer;
+}
+
+.option input[type="radio"]:checked {
+  border-color: #1a1a1a;
+  background: #1a1a1a;
+  box-shadow: inset 0 0 0 4px #fff;
+}
+
+.option:has(input:checked) {
+  border-color: #1a1a1a;
+  background: #f5f5f0;
+}
+
+.option.correct {
+  border-color: #2b8a3e;
+  background: #f0faf2;
+}
+
+.option.correct input[type="radio"] {
+  border-color: #2b8a3e;
+  background: #2b8a3e;
+  box-shadow: inset 0 0 0 4px #fff;
+}
+
+.option.wrong {
+  border-color: #c92a2a;
+  background: #fdf0f0;
+}
+
+.option.wrong input[type="radio"] {
+  border-color: #c92a2a;
+  background: #c92a2a;
+  box-shadow: inset 0 0 0 4px #fff;
+}
+
+.option.disabled { pointer-events: none; }
+
+.btn-row {
+  display: flex;
+  gap: .75rem;
+}
+
+.btn {
+  flex: 1;
+  padding: .85rem;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.btn-primary {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.btn-primary:hover { background: #333; }
+.btn-primary:disabled { opacity: .35; cursor: default; }
+
+.btn-secondary {
+  background: #e8e5de;
+  color: #333;
+}
+
+.btn-secondary:hover { background: #d8d5cc; }
+
+/* Result screen */
+.result {
+  text-align: center;
+  padding: 1.5rem 0 .5rem;
+}
+
+.result-score {
+  font-family: 'EB Garamond', serif;
+  font-size: 3rem;
+  font-weight: 400;
+  color: #1a1a1a;
+  margin-bottom: .25rem;
+}
+
+.result-label {
+  font-size: .85rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: #999;
+  margin-bottom: 1rem;
+}
+
+.result-title {
+  font-family: 'EB Garamond', serif;
+  font-size: 2rem;
+  font-weight: 400;
+  color: #1a1a1a;
+  margin-bottom: .5rem;
+}
+
+.result-desc {
+  font-size: .95rem;
+  color: #666;
+  line-height: 1.6;
+  max-width: 420px;
+  margin: 0 auto 2rem;
+}
+
+.result .btn { max-width: 280px; margin: 0 auto; }
+
+.feedback {
+  font-size: .9rem;
+  margin: -1rem 0 1.25rem;
+  font-style: italic;
+  color: #555;
+}
+
+@media (max-width: 500px) {
+  .quiz-container { padding: 1.5rem; }
+  h1 { font-size: 1.8rem; }
+  .question-text { font-size: 1.25rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="quiz-container" id="app">
+  <h1>Kracht-Quiz</h1>
+  <p class="subtitle">Wie gut kennst du Christian Kracht?</p>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <div id="content"></div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "In welchem Jahr wurde Christian Kracht geboren?",
+    opts: ["1964", "1966", "1968", "1970"],
+    ans: 1
+  },
+  {
+    q: "Wo wurde Christian Kracht geboren?",
+    opts: ["Bern", "Zürich", "Saanen (Kanton Bern)", "Basel"],
+    ans: 2
+  },
+  {
+    q: "Wie heißt Christian Krachts Debütroman?",
+    opts: ["1979", "Imperium", "Faserland", "Die Toten"],
+    ans: 2
+  },
+  {
+    q: "Welches Literaturmagazin gründete Kracht gemeinsam mit Eckhart Nickel?",
+    opts: ["Der Spiegel", "Der Freund", "Die Zeit", "Das Magazin"],
+    ans: 1
+  },
+  {
+    q: "In welchem Jahr erschien der Roman „Imperium"?",
+    opts: ["2010", "2011", "2012", "2013"],
+    ans: 2
+  },
+  {
+    q: "Welcher Roman Krachts spielt im Berlin der frühen 1930er-Jahre und handelt von einem Schweizer Filmemacher?",
+    opts: ["Imperium", "1979", "Die Toten", "Eurotrash"],
+    ans: 2
+  },
+  {
+    q: "Wie heißt der 2021 erschienene Roman, der inhaltlich an „Faserland" anknüpft?",
+    opts: ["Eurotrash", "Air", "Die Toten", "1979"],
+    ans: 0
+  },
+  {
+    q: "Welchen Literaturpreis gewann Christian Kracht 2012 für „Imperium"?",
+    opts: ["Deutscher Buchpreis", "Wilhelm-Raabe-Literaturpreis", "Ingeborg-Bachmann-Preis", "Georg-Büchner-Preis"],
+    ans: 1
+  },
+  {
+    q: "In welchem Land spielt die alternative Geschichtserzählung „Ich werde hier sein im Sonnenschein und im Schatten"?",
+    opts: ["Argentinien", "Kenia", "Schweiz", "Nepal"],
+    ans: 2
+  },
+  {
+    q: "Wovon handelt Christian Krachts Roman „Imperium"?",
+    opts: [
+      "Vom Untergang des Römischen Reichs",
+      "Von einem deutschen Auswanderer, der in der Südsee eine Kokosnuss-Kolonie gründet",
+      "Von der Erfindung des Buchdrucks",
+      "Von einem Spion im Kalten Krieg"
+    ],
+    ans: 1
+  }
+];
+
+const total = questions.length;
+let current = 0;
+let score = 0;
+let answered = false;
+
+const content = document.getElementById('content');
+const progressFill = document.getElementById('progressFill');
+
+function render() {
+  if (current >= total) { renderResult(); return; }
+
+  const q = questions[current];
+  const pct = ((current) / total) * 100;
+  progressFill.style.width = pct + '%';
+
+  let html = `
+    <div class="question-number">Frage ${current + 1} von ${total}</div>
+    <div class="question-text">${q.q}</div>
+    <div class="options" id="options">
+  `;
+
+  q.opts.forEach((opt, i) => {
+    html += `
+      <label class="option" data-idx="${i}">
+        <input type="radio" name="q" value="${i}">
+        ${opt}
+      </label>
+    `;
+  });
+
+  html += `</div>`;
+
+  if (answered) {
+    const isCorrect = questions[current].ans === getSelected();
+    html += `<div class="feedback">${isCorrect ? '✓ Richtig!' : '✗ Leider falsch.'}</div>`;
+    html += `<button class="btn btn-primary" id="nextBtn">${current < total - 1 ? 'Weiter' : 'Ergebnis anzeigen'}</button>`;
+  } else {
+    html += `<button class="btn btn-primary" id="submitBtn" disabled>Antwort prüfen</button>`;
+  }
+
+  content.innerHTML = html;
+
+  if (!answered) {
+    const radios = document.querySelectorAll('input[name="q"]');
+    const submitBtn = document.getElementById('submitBtn');
+
+    radios.forEach(r => {
+      r.addEventListener('change', () => { submitBtn.disabled = false; });
+    });
+
+    submitBtn.addEventListener('click', checkAnswer);
+  } else {
+    document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+  }
+}
+
+function getSelected() {
+  const checked = document.querySelector('input[name="q"]:checked');
+  return checked ? parseInt(checked.value) : -1;
+}
+
+function checkAnswer() {
+  const sel = getSelected();
+  if (sel < 0) return;
+  answered = true;
+  if (sel === questions[current].ans) score++;
+
+  const labels = document.querySelectorAll('.option');
+  labels.forEach((l, i) => {
+    l.classList.add('disabled');
+    if (i === questions[current].ans) l.classList.add('correct');
+    else if (i === sel && sel !== questions[current].ans) l.classList.add('wrong');
+  });
+
+  render();
+}
+
+function nextQuestion() {
+  current++;
+  answered = false;
+  render();
+}
+
+function renderResult() {
+  progressFill.style.width = '100%';
+
+  let title, desc;
+  if (score >= 8) {
+    title = 'Kracht-Connessoir';
+    desc = 'Grandios! Du kennst Krachts Universum wie ein echter Connessoir – ‹Faserland›, ‹Imperium› und die feinen Zwischentöne der Pop-Literatur beherrschst du im Schlaf. Chapeau!';
+  } else if (score >= 5) {
+    title = 'Kracht-Leser';
+    desc = 'Nicht schlecht! Du hast einige Werke und Fakten parat, aber der Weg zum Kracht-Connessoir ist noch ein kleines Stück weit.';
+  } else {
+    title = 'Kracht-Novize';
+    desc = 'Da geht noch was! Tauche ein in Krachts vielschichtige Welten – von der Südsee bis ins Berlin der 1930er – und versuch es gern noch einmal.';
+  }
+
+  content.innerHTML = `
+    <div class="result">
+      <div class="result-score">${score}/${total}</div>
+      <div class="result-label">Richtig beantwortet</div>
+      <div class="result-title">${title}</div>
+      <div class="result-desc">${desc}</div>
+      <button class="btn btn-primary" id="restartBtn">Quiz wiederholen</button>
+    </div>
+  `;
+
+  document.getElementById('restartBtn').addEventListener('click', restart);
+}
+
+function restart() {
+  current = 0;
+  score = 0;
+  answered = false;
+  progressFill.style.width = '0%';
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
