@@ -5,7 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kracht-Quiz</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;600;700&display=swap');
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/EBGaramond-Italic-400.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/EBGaramond-Normal-400.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/EBGaramond-Normal-600.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/Inter-Normal-400.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/Inter-Normal-600.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/Inter-Normal-700.ttf') format('truetype');
+}
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -181,6 +222,22 @@ h1 {
 }
 
 .btn-secondary:hover { background: #d8d5cc; }
+
+.btn-outline {
+  background: transparent;
+  color: #1a1a1a;
+  border: 1.5px solid #1a1a1a;
+}
+
+.btn-outline:hover { background: #f5f5f0; }
+
+.share-feedback {
+  font-size: .85rem;
+  color: #888;
+  text-align: center;
+  margin-top: 1rem;
+  min-height: 1.4em;
+}
 
 /* Result screen */
 .result {
@@ -391,11 +448,11 @@ function renderResult() {
 
   let title, desc;
   if (score >= 8) {
-    title = 'Kracht-Connessoir';
-    desc = 'Grandios! Du kennst Krachts Universum wie ein echter Connessoir – ‹Faserland›, ‹Imperium› und die feinen Zwischentöne der Pop-Literatur beherrschst du im Schlaf. Chapeau!';
+    title = 'Kracht-Connaisseur';
+    desc = 'Grandios! Du kennst Krachts Universum wie ein echter Connaisseur – ‹Faserland›, ‹Imperium› und die feinen Zwischentöne der Pop-Literatur beherrschst du im Schlaf. Chapeau!';
   } else if (score >= 5) {
     title = 'Kracht-Leser';
-    desc = 'Nicht schlecht! Du hast einige Werke und Fakten parat, aber der Weg zum Kracht-Connessoir ist noch ein kleines Stück weit.';
+    desc = 'Nicht schlecht! Du hast einige Werke und Fakten parat, aber der Weg zum Kracht-Connaisseur ist noch ein kleines Stück weit.';
   } else {
     title = 'Kracht-Novize';
     desc = 'Da geht noch was! Tauche ein in Krachts vielschichtige Welten – von der Südsee bis ins Berlin der 1930er – und versuch es gern noch einmal.';
@@ -407,11 +464,33 @@ function renderResult() {
       <div class="result-label">Richtig beantwortet</div>
       <div class="result-title">${title}</div>
       <div class="result-desc">${desc}</div>
-      <button class="btn btn-primary" id="restartBtn">Quiz wiederholen</button>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="restartBtn">Quiz wiederholen</button>
+        <button class="btn btn-outline" id="shareBtn">Teilen</button>
+      </div>
+      <div class="share-feedback" id="shareFeedback"></div>
     </div>
   `;
 
   document.getElementById('restartBtn').addEventListener('click', restart);
+  document.getElementById('shareBtn').addEventListener('click', shareResult);
+}
+
+function shareResult() {
+  const el = document.getElementById('shareFeedback');
+  const title = document.querySelector('.result-title').textContent;
+  const text = `Ich habe im Kracht-Quiz ${score}/${total} erreicht und bin ein „${title}"! Mach auch mit: https://krachtquiz.homepub.org`;
+
+  if (navigator.share) {
+    navigator.share({ title: 'Kracht-Quiz', text, url: 'https://krachtquiz.homepub.org' })
+      .catch(() => {});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      el.textContent = 'Link und Ergebnis in die Zwischenablage kopiert!';
+    });
+  } else {
+    el.textContent = 'Zum Teilen bitte kopieren: ' + text;
+  }
 }
 
 function restart() {
