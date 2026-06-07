@@ -272,7 +272,7 @@ const questions = [
     ans: 1
   },
   {
-    q: "In welchem Jahr erschien der Roman „Imperium"?",
+    q: 'In welchem Jahr erschien der Roman \u00abImperium\u00bb?',
     opts: ["2010", "2011", "2012", "2013"],
     ans: 2
   },
@@ -282,22 +282,22 @@ const questions = [
     ans: 2
   },
   {
-    q: "Wie heißt der 2021 erschienene Roman, der inhaltlich an „Faserland" anknüpft?",
+    q: 'Wie hei\u00dft der 2021 erschienene Roman, der inhaltlich an \u00abFaserland\u00bb ankn\u00fcpft?',
     opts: ["Eurotrash", "Air", "Die Toten", "1979"],
     ans: 0
   },
   {
-    q: "Welchen Literaturpreis gewann Christian Kracht 2012 für „Imperium"?",
+    q: "Welchen Literaturpreis gewann Christian Kracht 2012 f\u00fcr \u201eImperium\u201c?",
     opts: ["Deutscher Buchpreis", "Wilhelm-Raabe-Literaturpreis", "Ingeborg-Bachmann-Preis", "Georg-Büchner-Preis"],
     ans: 1
   },
   {
-    q: "In welchem Land spielt die alternative Geschichtserzählung „Ich werde hier sein im Sonnenschein und im Schatten"?",
+    q: "In welchem Land spielt die alternative Geschichtserz\u00e4hlung \u201eIch werde hier sein im Sonnenschein und im Schatten\u201c?",
     opts: ["Argentinien", "Kenia", "Schweiz", "Nepal"],
     ans: 2
   },
   {
-    q: "Wovon handelt Christian Krachts Roman „Imperium"?",
+    q: "Wovon handelt Christian Krachts Roman \u201eImperium\u201c?",
     opts: [
       "Vom Untergang des Römischen Reichs",
       "Von einem deutschen Auswanderer, der in der Südsee eine Kokosnuss-Kolonie gründet",
@@ -312,6 +312,7 @@ const total = questions.length;
 let current = 0;
 let score = 0;
 let answered = false;
+let selected = -1;
 
 const content = document.getElementById('content');
 const progressFill = document.getElementById('progressFill');
@@ -320,7 +321,7 @@ function render() {
   if (current >= total) { renderResult(); return; }
 
   const q = questions[current];
-  const pct = ((current) / total) * 100;
+  const pct = (current / total) * 100;
   progressFill.style.width = pct + '%';
 
   let html = `
@@ -330,19 +331,26 @@ function render() {
   `;
 
   q.opts.forEach((opt, i) => {
+    let cls = 'option';
+    if (answered) {
+      cls += ' disabled';
+      if (i === q.ans) cls += ' correct';
+      else if (i === selected && i !== q.ans) cls += ' wrong';
+    }
+    const chk = i === selected ? ' checked' : '';
     html += `
-      <label class="option" data-idx="${i}">
-        <input type="radio" name="q" value="${i}">
+      <label class="${cls}">
+        <input type="radio" name="q" value="${i}"${chk}>
         ${opt}
       </label>
     `;
   });
 
-  html += `</div>`;
+  html += '</div>';
 
   if (answered) {
-    const isCorrect = questions[current].ans === getSelected();
-    html += `<div class="feedback">${isCorrect ? '✓ Richtig!' : '✗ Leider falsch.'}</div>`;
+    const isCorrect = selected === q.ans;
+    html += `<div class="feedback">${isCorrect ? 'Richtig!' : 'Leider falsch.'}</div>`;
     html += `<button class="btn btn-primary" id="nextBtn">${current < total - 1 ? 'Weiter' : 'Ergebnis anzeigen'}</button>`;
   } else {
     html += `<button class="btn btn-primary" id="submitBtn" disabled>Antwort prüfen</button>`;
@@ -351,43 +359,30 @@ function render() {
   content.innerHTML = html;
 
   if (!answered) {
-    const radios = document.querySelectorAll('input[name="q"]');
-    const submitBtn = document.getElementById('submitBtn');
-
-    radios.forEach(r => {
-      r.addEventListener('change', () => { submitBtn.disabled = false; });
+    document.querySelectorAll('input[name="q"]').forEach(r => {
+      r.addEventListener('change', () => {
+        document.getElementById('submitBtn').disabled = false;
+      });
     });
-
-    submitBtn.addEventListener('click', checkAnswer);
+    document.getElementById('submitBtn').addEventListener('click', checkAnswer);
   } else {
     document.getElementById('nextBtn').addEventListener('click', nextQuestion);
   }
 }
 
-function getSelected() {
-  const checked = document.querySelector('input[name="q"]:checked');
-  return checked ? parseInt(checked.value) : -1;
-}
-
 function checkAnswer() {
-  const sel = getSelected();
+  const sel = parseInt(document.querySelector('input[name="q"]:checked')?.value ?? -1);
   if (sel < 0) return;
+  selected = sel;
   answered = true;
   if (sel === questions[current].ans) score++;
-
-  const labels = document.querySelectorAll('.option');
-  labels.forEach((l, i) => {
-    l.classList.add('disabled');
-    if (i === questions[current].ans) l.classList.add('correct');
-    else if (i === sel && sel !== questions[current].ans) l.classList.add('wrong');
-  });
-
   render();
 }
 
 function nextQuestion() {
   current++;
   answered = false;
+  selected = -1;
   render();
 }
 
