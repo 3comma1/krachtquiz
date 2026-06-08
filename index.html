@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kracht-Quiz</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <style>
 @font-face {
   font-family: 'EB Garamond';
@@ -342,7 +343,7 @@ const questions = [
   },
   {
     q: "Wo wurde Christian Kracht geboren?",
-    opts: ["Bern", "Zürich", "Saanen (Kanton Bern)", "Basel"],
+    opts: ["Bern", "Zürich", "Saanen", "Basel"],
     ans: 2
   },
   {
@@ -352,7 +353,7 @@ const questions = [
   },
   {
     q: "Welches Literaturmagazin gründete Kracht gemeinsam mit Eckhart Nickel?",
-    opts: ["Der Spiegel", "Der Freund", "Die Zeit", "Das Magazin"],
+    opts: ["Der Exot", "Der Freund", "Der Kokovore", "Der Dandy"],
     ans: 1
   },
   {
@@ -366,9 +367,9 @@ const questions = [
     ans: 2
   },
   {
-    q: 'Wie hei\u00dft der 2021 erschienene Roman, der inhaltlich an \u00abFaserland\u00bb ankn\u00fcpft?',
-    opts: ["Eurotrash", "Air", "Die Toten", "1979"],
-    ans: 0
+    q: 'Was studiert Karin, die der Protagonist aus \u00abFaserland\u00bb trifft?',
+    opts: ["Jura in Hamburg", "Kunstgeschichte in Wien", "Medizin in Heidelberg", "BWL in München"],
+    ans: 3
   },
   {
     q: "Welchen Literaturpreis gewann Christian Kracht 2012 f\u00fcr \u201eImperium\u201c?",
@@ -377,16 +378,16 @@ const questions = [
   },
   {
     q: "In welchem Land spielt die alternative Geschichtserz\u00e4hlung \u201eIch werde hier sein im Sonnenschein und im Schatten\u201c?",
-    opts: ["Argentinien", "Kenia", "Schweiz", "Nepal"],
+    opts: ["Deutsche Demokratische Republik (DDR) ", "Bundesrepublik Deutschland", "Schweizer Sowjetrepublik (SSR)", "Islamische Republik Iran"],
     ans: 2
   },
   {
     q: "Wovon handelt Christian Krachts Roman \u201eImperium\u201c?",
     opts: [
-      "Vom Untergang des Römischen Reichs",
+      "Von einer Schweiz unter autoritärer Herrschaft",
       "Von einem deutschen Auswanderer, der in der Südsee eine Kokosnuss-Kolonie gründet",
-      "Von der Erfindung des Buchdrucks",
-      "Von einem Spion im Kalten Krieg"
+      "Von \u201eNuevo Germania\u201c, einem deutschen Dorf in Paraguay",
+      "Von einem tibetischen Spion während der Kulturrevolution"
     ],
     ans: 1
   }
@@ -463,7 +464,7 @@ function renderStart() {
     <div class="start-hero">
       <img src="kracht_books.jpg" alt="Bücher von Christian Kracht">
       <p class="intro">
-        Teste dein Wissen über das Werk von Christian Kracht – von <em>Faserland</em> bis <em>Eurotrash</em>.
+        Teste dein Wissen über Leben und Werk von Christian Kracht – von <em>Faserland</em> bis <em>Eurotrash</em>.
         Zehn Fragen warten auf dich.
       </p>
       <button class="btn btn-primary" id="startBtn">Quiz starten</button>
@@ -509,6 +510,12 @@ function renderResult() {
     desc = 'Da geht noch was! Tauche ein in Krachts vielschichtige Welten – von der Südsee bis ins Berlin der 1930er – und versuch es gern noch einmal.';
   }
 
+  fetch('https://ntfy.sh', {
+    method: 'POST',
+    body: JSON.stringify({ topic: 'krachtquizresults', message: `${score}/${total} – ${title}` }),
+    headers: { 'Content-Type': 'application/json' }
+  }).catch(() => {});
+
   content.innerHTML = `
     <div class="result">
       <div class="result-score">${score}/${total}</div>
@@ -531,6 +538,12 @@ function shareResult() {
   const el = document.getElementById('shareFeedback');
   const title = document.querySelector('.result-title').textContent;
   const text = `Ich habe im Kracht-Quiz ${score}/${total} erreicht und bin ein „${title}"! Mach auch mit: https://krachtquiz.homepub.org`;
+
+  fetch('https://ntfy.sh', {
+    method: 'POST',
+    body: JSON.stringify({ topic: 'krachtquizresults', message: `Geteilt: ${score}/${total} – ${title}` }),
+    headers: { 'Content-Type': 'application/json' }
+  }).catch(() => {});
 
   if (navigator.share) {
     navigator.share({ title: 'Kracht-Quiz', text })
