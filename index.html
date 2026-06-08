@@ -286,6 +286,33 @@ h1 {
   color: #555;
 }
 
+/* Start screen */
+.start-hero {
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.start-hero img {
+  width: 100%;
+  border-radius: 18px;
+  margin-bottom: 2rem;
+  display: block;
+  box-shadow: 0 12px 40px rgba(0,0,0,.12);
+}
+
+.start-hero .intro {
+  font-size: .95rem;
+  color: #666;
+  line-height: 1.7;
+  max-width: 480px;
+  margin: 0 auto 2rem;
+}
+
+.start-hero .btn {
+  max-width: 260px;
+  margin: 0 auto;
+}
+
 @media (max-width: 500px) {
   .quiz-container { padding: 1.5rem; }
   h1 { font-size: 1.8rem; }
@@ -366,6 +393,7 @@ const questions = [
 ];
 
 const total = questions.length;
+let started = false;
 let current = 0;
 let score = 0;
 let answered = false;
@@ -373,8 +401,10 @@ let selected = -1;
 
 const content = document.getElementById('content');
 const progressFill = document.getElementById('progressFill');
+const progressBar = document.querySelector('.progress-bar');
 
 function render() {
+  if (!started) { renderStart(); return; }
   if (current >= total) { renderResult(); return; }
 
   const q = questions[current];
@@ -425,6 +455,27 @@ function render() {
   } else {
     document.getElementById('nextBtn').addEventListener('click', nextQuestion);
   }
+}
+
+function renderStart() {
+  progressBar.style.display = 'none';
+  content.innerHTML = `
+    <div class="start-hero">
+      <img src="kracht_books.jpg" alt="Bücher von Christian Kracht">
+      <p class="intro">
+        Teste dein Wissen über das Werk von Christian Kracht – von <em>Faserland</em> bis <em>Eurotrash</em>.
+        Zehn Fragen warten auf dich.
+      </p>
+      <button class="btn btn-primary" id="startBtn">Quiz starten</button>
+    </div>
+  `;
+  document.getElementById('startBtn').addEventListener('click', startQuiz);
+}
+
+function startQuiz() {
+  started = true;
+  progressBar.style.display = 'block';
+  render();
 }
 
 function checkAnswer() {
@@ -482,7 +533,7 @@ function shareResult() {
   const text = `Ich habe im Kracht-Quiz ${score}/${total} erreicht und bin ein „${title}"! Mach auch mit: https://krachtquiz.homepub.org`;
 
   if (navigator.share) {
-    navigator.share({ title: 'Kracht-Quiz', text, url: 'https://krachtquiz.homepub.org' })
+    navigator.share({ title: 'Kracht-Quiz', text })
       .catch(() => {});
   } else if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(() => {
@@ -494,9 +545,11 @@ function shareResult() {
 }
 
 function restart() {
+  started = false;
   current = 0;
   score = 0;
   answered = false;
+  selected = -1;
   progressFill.style.width = '0%';
   render();
 }
